@@ -15,6 +15,7 @@ from rembg import new_session, remove
 
 CONFIG_DIR = Path.home() / ".nanopng"
 CONFIG_ENV = CONFIG_DIR / ".env"
+OUTPUT_DIR = CONFIG_DIR / "outputs"
 CHROMA_SUFFIX = ", on a solid bright green (#00FF00) chroma key background, studio lighting"
 REMBG_MODEL = "isnet-general-use"
 REMBG_MODEL_PATH = Path.home() / ".u2net" / "isnet-general-use.onnx"
@@ -42,7 +43,6 @@ def slugify(prompt: str, max_words: int = 3) -> str:
 
 
 def get_api_key() -> str:
-    load_dotenv()
     load_dotenv(CONFIG_ENV)
     api_key = os.environ.get("GEMINI_API_KEY")
     if api_key:
@@ -115,7 +115,8 @@ def generate_transparent_png(
         if output:
             path = output if n == 1 else output.with_stem(f"{output.stem}-{i + 1}")
         else:
-            path = Path(f"{slug}.png") if n == 1 else Path(f"{slug}-{i + 1}.png")
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            path = OUTPUT_DIR / (f"{slug}.png" if n == 1 else f"{slug}-{i + 1}.png")
 
         result.save(path)
         saved.append(path)
