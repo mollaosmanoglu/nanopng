@@ -31,6 +31,12 @@ nanopng "samurai warrior" --style anime --size 9:16
 nanopng "crystal sword" --model standard -o sword.png
 ```
 
+## Update
+
+```
+uv tool upgrade nanopng
+```
+
 ## Options
 
 | Flag | Description | Default |
@@ -93,6 +99,13 @@ nanopng "crystal sword" --model standard -o sword.png
          (transparent RGBA)
 
 Imagen 4 Fast (~10s) • rembg local inference (~2s) • ~12s total
+```
+
+## Storage
+
+```
+~/.nanopng/.env                      # API key (saved on first run)
+~/.u2net/isnet-general-use.onnx      # BG removal model (one-time download, ~179MB)
 ```
 
 ## License
