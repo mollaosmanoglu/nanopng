@@ -13,8 +13,11 @@ from google.genai import types
 from PIL import Image
 from rembg import new_session, remove
 
+CONFIG_DIR = Path.home() / ".nanopng"
+CONFIG_ENV = CONFIG_DIR / ".env"
 CHROMA_SUFFIX = ", on a solid bright green (#00FF00) chroma key background, studio lighting"
 REMBG_MODEL = "isnet-general-use"
+REMBG_MODEL_PATH = Path.home() / ".u2net" / "isnet-general-use.onnx"
 
 MODELS = {
     "fast": "imagen-4.0-fast-generate-001",
@@ -38,6 +41,31 @@ def slugify(prompt: str, max_words: int = 3) -> str:
     return "-".join(words) or "output"
 
 
+def get_api_key() -> str:
+    load_dotenv()
+    load_dotenv(CONFIG_ENV)
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if api_key:
+        return api_key
+
+    print("No GEMINI_API_KEY found. Get one at https://aistudio.google.com/apikey", file=sys.stderr)
+    api_key = input("Enter your Gemini API key: ").strip()
+    if not api_key:
+        print("Error: No API key provided.", file=sys.stderr)
+        sys.exit(1)
+
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    CONFIG_ENV.write_text(f"GEMINI_API_KEY={api_key}\n")
+    print(f"Saved to {CONFIG_ENV}", file=sys.stderr)
+    return api_key
+
+
+def load_rembg_session():  # type: ignore[no-untyped-def]
+    if not REMBG_MODEL_PATH.exists():
+        print("Downloading background removal model (one-time, ~179MB)...", file=sys.stderr)
+    return new_session(REMBG_MODEL)
+
+
 def generate_transparent_png(
     prompt: str,
     output: Path | None = None,
@@ -46,11 +74,7 @@ def generate_transparent_png(
     style: str | None = None,
     model: str = "fast",
 ) -> list[Path]:
-    load_dotenv()
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("Error: GEMINI_API_KEY not set. Add it to .env or export it.", file=sys.stderr)
-        sys.exit(1)
+    api_key = get_api_key()
 
     model_id = MODELS.get(model)
     if not model_id:
@@ -68,7 +92,7 @@ def generate_transparent_png(
 
     slug = slugify(prompt)
     client = genai.Client(api_key=api_key)
-    session = new_session(REMBG_MODEL)
+    session = load_rembg_session()
 
     t0 = time.time()
 
