@@ -29,7 +29,25 @@ nanopng "fire breathing dragon"
 nanopng "cat wizard" -n 4
 nanopng "samurai warrior" --style anime --size 9:16
 nanopng "crystal sword" --model standard -o sword.png
+
+# With reference image (uses Gemini 3.1 Flash Image)
+nanopng "character in this style" -i reference.png -o output.png
+
+# Multiple reference images (up to 14)
+nanopng "combine these elements" -i img1.png -i img2.png -i img3.png
+
+# From stdin (for piping image data)
+cat reference.jpg | nanopng -i - "prompt" -o output.png
 ```
+
+### Claude Code Integration
+
+When using nanopng with Claude Code, you can send images directly in chat:
+
+1. Send an image in the conversation
+2. Claude finds it in `/var/folders/.../T/tos_*.png`
+3. Pipes it directly: `cat [temp-file] | nanopng -i - "prompt"`
+4. Instant generation with your reference image!
 
 ## Update
 
