@@ -1,6 +1,6 @@
 [project]
 name = "nanopng"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generate transparent PNG images from text prompts using Nano Banana Pro + background removal"
 readme = "README.md"
 requires-python = ">=3.12"
